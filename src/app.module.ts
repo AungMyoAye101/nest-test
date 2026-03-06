@@ -5,12 +5,20 @@ import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { PostController } from './post/post.controller';
 import { PostModule } from './post/post.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ValidationPipe } from './validations.pipe';
 
 
 @Module({
   imports: [UsersModule, PostModule],
   controllers: [AppController, PostController],
-  providers: [AppService],
+  providers: [AppService,
+    // {
+    //   provide: APP_PIPE,
+    //   useClass: ValidationPipe,
+    // },
+
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
