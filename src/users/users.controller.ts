@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodValidationPipe } from 'src/zodValidation.pipe';
 import { type CreateUserType, userSchema } from './user.schmea';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decoter';
+import { LoggingInterceptor } from 'src/logging.interceptor';
 
 @Controller('users')
 @UseGuards(new AuthGuard())
+// @UseInterceptors(new LoggingInterceptor())
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
