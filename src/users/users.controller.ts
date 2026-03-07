@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UsePipes,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodValidationPipe } from 'src/zodValidation.pipe';
 import { type CreateUserType, userSchema } from './user.schmea';
@@ -10,10 +21,9 @@ import { LoggingInterceptor } from 'src/logging.interceptor';
 @UseGuards(new AuthGuard())
 // @UseInterceptors(new LoggingInterceptor())
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
-
   @UsePipes(new ZodValidationPipe(userSchema))
   create(@Body() createUserDto: CreateUserType) {
     return createUserDto;
