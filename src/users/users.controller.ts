@@ -1,16 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ValidationPipe } from 'src/validations.pipe';
 import { ZodValidationPipe } from 'src/zodValidation.pipe';
 import { type CreateUserType, userSchema } from './user.schmea';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from 'src/auth/role.decoter';
 
 @Controller('users')
+@UseGuards(new AuthGuard())
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
+
   @UsePipes(new ZodValidationPipe(userSchema))
   create(@Body() createUserDto: CreateUserType) {
     return createUserDto;

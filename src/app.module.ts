@@ -7,10 +7,11 @@ import { PostController } from './post/post.controller';
 import { PostModule } from './post/post.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './validations.pipe';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
-  imports: [UsersModule, PostModule],
+  imports: [UsersModule, PostModule, AuthModule],
   controllers: [AppController, PostController],
   providers: [AppService,
     // {
