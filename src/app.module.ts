@@ -1,44 +1,27 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestMiddleware,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { PostController } from './post/post.controller';
-import { PostModule } from './post/post.module';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { ValidationPipe } from './validations.pipe';
-import { AuthModule } from './auth/auth.module';
-import { LoggingInterceptor } from './logging.interceptor';
-import { ConfigModule } from '@nestjs/config';
-import configuration from './config/configuration';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { TypeOrmModule } from "@nestjs/typeorm"
+import { DataSource } from "typeorm";
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    UsersModule,
-    PostModule,
-    AuthModule,
-    ConfigModule
+    TypeOrmModule.forRoot({
+      type: "mssql",
+      host: "localhost",
+      port: 3306,
+      username: "root",
+      password: "root",
+      database: "test",
+      entities: [],
+      synchronize: true
+    }),
+    UserModule
   ],
-  controllers: [AppController, PostController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-  ],
+  controllers: [AppController],
+  providers: [AppService]
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes({
-      path: 'users/*',
-      method: RequestMethod.GET,
-    });
-  }
+export class AppModule {
+  constructor(private dataSource: DataSource) { }
 }
