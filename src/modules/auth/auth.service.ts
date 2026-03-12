@@ -3,20 +3,31 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserType, LoginType } from './schema/auth.schema';
 import type { User } from 'src/generated/prisma/client';
 import bcrypt from "bcrypt"
+import { JwtService } from "@nestjs/jwt"
+
 @Injectable()
 export class AuthService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private jwtService: JwtService
+    ) { }
 
-    async create(data: CreateUserType): Promise<User> {
+    async create(data: CreateUserType): Promise<{ user: User, token: string }> {
         const hashedPassword = await bcrypt.hash(data.password, 10);
 
 
-        return await this.prisma.user.create({
+        const user = await this.prisma.user.create({
             data: {
                 ...data,
                 password: hashedPassword
             }
         })
+
+        const payload = { sub: user.id, email: user.email };
+        const access_token = await this.jwtService.signAsync(payload);
+        console.log(access_token)
+
+        return { user, token: access_token };
     }
 
     //login
@@ -34,5 +45,7 @@ export class AuthService {
 
         return user
     }
+
+
 
 }
