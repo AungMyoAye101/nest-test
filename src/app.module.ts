@@ -7,6 +7,8 @@ import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from "./prisma/prisma.module";
 import { JwtModule } from "@nestjs/jwt";
 import { JWT_SECRET } from "./modules/auth/constant/jwt-service";
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,7 +21,8 @@ import { JWT_SECRET } from "./modules/auth/constant/jwt-service";
     }),
     PrismaModule,
     AuthModule,
-    UserModule],
+    UserModule,
+    UsersModule],
   controllers: [AppController],
   providers: [AppService]
 })

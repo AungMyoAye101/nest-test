@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LoggingInterceptor } from './logging.interceptor';
-import { HttpExceptionFilter } from './common/fliters/http.expection.filters';
+import { HTTPExpectionFilter } from './common/filter/http-expection.fliter';
+import { ResponseFormatter } from './common/interceptor/response.interceptor';
+
+
 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalInterceptors(new LoggingInterceptor())
-  app.useGlobalFilters(new HttpExceptionFilter())
+  app.useGlobalFilters(new HTTPExpectionFilter())
+  app.useGlobalInterceptors(new ResponseFormatter())
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
