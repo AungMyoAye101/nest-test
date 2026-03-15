@@ -69,4 +69,7 @@ export class AuthService {
 
     }
 
+    async currentUser(id: string) {
+        return this.prisma.user.findUnique({ where: { id } })
+    }
 }

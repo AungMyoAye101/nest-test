@@ -5,6 +5,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from "./prisma/prisma.module";
 import { JwtModule } from "@nestjs/jwt";
+import { UsersModule } from "./modules/users/users.module";
 
 
 @Module({
@@ -12,9 +13,12 @@ import { JwtModule } from "@nestjs/jwt";
     ConfigModule.forRoot({
       isGlobal: true
     }),
-
+    JwtModule.register({
+      global: true
+    }),
     PrismaModule,
     AuthModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService]
