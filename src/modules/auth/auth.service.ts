@@ -72,4 +72,29 @@ export class AuthService {
     async currentUser(id: string) {
         return this.prisma.user.findUnique({ where: { id } })
     }
+
+    async refresh(token: string) {
+        try {
+            const payload = await this.jwt.verifyAsync(token, {
+                secret: process.env.REFRESH_TOKEN_SECRET
+            })
+            if (!payload) {
+                throw new BadRequestException("Failed to verify refresh token")
+            }
+            const user = await this.prisma.user.findUnique({ where: { id: payload.sub } })
+            if (!user) {
+                throw new NotFoundException("User not found.")
+            }
+
+            const { access_token, refresh_token } = await this.generateTokens(user.id, user.email)
+
+            return this.prisma.user.update({
+                where: { id: user.id },
+                data: { refresh_token }
+            })
+
+        } catch (error) {
+            throw new BadRequestException("Failed to refresh token")
+        }
+    }
 }
