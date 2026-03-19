@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserType, LoginType } from './dto/auth.schema';
 import bcrypt from "bcrypt"
@@ -14,7 +14,7 @@ export class AuthService {
         const [access_token, refresh_token] = await Promise.all([
             this.jwt.signAsync(
                 { sub: userId, email },
-                { secret: process.env.ACCESS_TOKEN_SECRET as string, expiresIn: "15min" }
+                { secret: process.env.ACCESS_TOKEN_SECRET as string, expiresIn: "1d" }
             ),
             this.jwt.signAsync(
                 { sub: userId, email },
@@ -42,16 +42,21 @@ export class AuthService {
         }
 
         const { access_token, refresh_token } = await this.generateTokens(user.id, user.email);
-        console.log(access_token);
 
-        return await this.prisma.user.update({
+
+        await this.prisma.user.update({
             where: { id: user.id },
             data: { refresh_token }
         });
+        return { user, token: access_token }
 
     }
 
     async register(data: CreateUserType) {
+        const exitingUser = await this.prisma.user.findUnique({ where: { email: data.email } })
+        if (exitingUser) {
+            throw new ConflictException("Email already existed.")
+        }
         const hashedPassword = await bcrypt.hash(data.password, 10)
         const user = await this.prisma.user.create({ data: { ...data, password: hashedPassword } })
         if (!user) {
@@ -59,14 +64,15 @@ export class AuthService {
         }
 
         const { access_token, refresh_token } = await this.generateTokens(user.id, user.email);
-        console.log(access_token);
 
-        return await this.prisma.user.update(
+
+        await this.prisma.user.update(
             {
                 where: { id: user.id },
                 data: { refresh_token }
             })
 
+        return { user, token: access_token }
     }
 
     async currentUser(id: string) {
