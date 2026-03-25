@@ -7,14 +7,19 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersModule } from "./modules/users/users.module";
 import { PostsModule } from "./modules/posts/posts.module";
-import { CacheModule } from "@nestjs/cache-manager"
-
+import { CacheInterceptor, CacheModule } from "@nestjs/cache-manager"
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { redisStore } from 'cache-manager-redis-yet';
 @Module({
   imports: [
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      ttl: 60,
-      max: 100,
+      useFactory: async () => ({
+        stores: await redisStore({
+          url: 'redis://localhost:6379',
+          ttl: 60000
+        })
+      })
     }),
     ConfigModule.forRoot({
       isGlobal: true
@@ -28,7 +33,9 @@ import { CacheModule } from "@nestjs/cache-manager"
     PostsModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [
+    AppService,
+  ]
 })
 
 export class AppModule { }

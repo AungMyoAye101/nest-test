@@ -18,12 +18,12 @@ export class PostsService {
   }
 
   async findAll(query: PostQueryType) {
-    const cacheKey = `cache:posts:${JSON.stringify(query)}`
-    const cachedPost = await this.cacheManger.get(cacheKey);
-    if (cachedPost) {
-      console.log("cached")
-      return cachedPost;
-    }
+    // const cacheKey = `cache:posts:${JSON.stringify(query)}`
+    // const cachedPost = await this.cacheManger.get(cacheKey);
+    // if (cachedPost) {
+    //   console.log("cached")
+    //   return cachedPost;
+    // }
     const { page, limit, sorting, search } = query;
 
 
@@ -49,7 +49,7 @@ export class PostsService {
 
       }
     );
-    await this.cacheManger.set(cacheKey, posts, 300000)
+    // await this.cacheManger.set(cacheKey, posts, 300000)
     return posts;
   }
 

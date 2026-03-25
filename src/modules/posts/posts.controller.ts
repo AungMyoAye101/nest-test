@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { createPostSchema, postQueryschema, type PostQueryType, type CreatePostType, type UpdatePostType } from './dto/post.schema';
 import { ZodValidationPipe } from 'src/common/pipes/zod-pipe';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 
 @Controller('posts')
@@ -20,6 +21,9 @@ export class PostsController {
   }
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(50)
+  @CacheKey("posts")
   @UsePipes(new ZodValidationPipe(postQueryschema))
   findAll(@Query() query: PostQueryType) {
     return this.postsService.findAll(query);
