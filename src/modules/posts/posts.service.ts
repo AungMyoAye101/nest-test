@@ -1,20 +1,31 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { CreatePostType, PostQueryType, UpdatePostType } from './dto/post.schema';
 import { PostWhereInput } from 'src/generated/prisma/models';
-
+import { Cache, CACHE_MANAGER, CacheInterceptor } from '@nestjs/cache-manager';
 @Injectable()
 export class PostsService {
 
-  constructor(private prisma: PrismaService) { }
-  async create(authorId: string, post: CreatePostType) {
-    return await this.prisma.post.create({ data: { authorId, ...post } });
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManger: Cache,
+    private prisma: PrismaService
+  ) { }
+
+  async create(authorId: string, data: CreatePostType) {
+    const post = await this.prisma.post.create({ data: { authorId, ...data } });
+    await this.cacheManger.del("cache:posts:*");
+    return post;
   }
 
   async findAll(query: PostQueryType) {
+    const cacheKey = `cache:posts:${JSON.stringify(query)}`
+    const cachedPost = await this.cacheManger.get(cacheKey);
+    if (cachedPost) {
+      console.log("cached")
+      return cachedPost;
+    }
     const { page, limit, sorting, search } = query;
+
 
     const where: PostWhereInput = {
       ...(search && {
@@ -26,8 +37,8 @@ export class PostsService {
       )
     }
 
-
-    return await this.prisma.post.findMany(
+    console.log("hit db")
+    const posts = await this.prisma.post.findMany(
       {
         where,
         skip: (page - 1) * limit,
@@ -38,6 +49,8 @@ export class PostsService {
 
       }
     );
+    await this.cacheManger.set(cacheKey, posts, 300000)
+    return posts;
   }
 
   async findOne(id: string) {

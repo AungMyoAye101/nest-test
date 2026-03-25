@@ -11,7 +11,11 @@ import { CacheModule } from "@nestjs/cache-manager"
 
 @Module({
   imports: [
-    // CacheModule.register(),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 60,
+      max: 100,
+    }),
     ConfigModule.forRoot({
       isGlobal: true
     }),
