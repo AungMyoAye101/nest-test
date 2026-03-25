@@ -12,14 +12,14 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
 import { redisStore } from 'cache-manager-redis-yet';
 @Module({
   imports: [
-    CacheModule.registerAsync({
+    CacheModule.register({
       isGlobal: true,
-      useFactory: async () => ({
-        stores: await redisStore({
-          url: 'redis://localhost:6379',
-          ttl: 60000
-        })
-      })
+      // useFactory: async () => ({
+      //   stores: await redisStore({
+      //     url: 'redis://localhost:6379',
+      //     ttl: 60000
+      //   })
+      // })
     }),
     ConfigModule.forRoot({
       isGlobal: true

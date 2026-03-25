@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { CreatePostType, PostQueryType, UpdatePostType } from './dto/post.schema';
 import { PostWhereInput } from 'src/generated/prisma/models';
-import { Cache, CACHE_MANAGER, CacheInterceptor } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER, } from '@nestjs/cache-manager';
 @Injectable()
 export class PostsService {
 
