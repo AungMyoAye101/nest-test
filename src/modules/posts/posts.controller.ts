@@ -1,25 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, UseGuards, Req, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { createPostSchema, type CreatePostType, type UpdatePostType } from './dto/post.schema';
+import { createPostSchema, postQueryschema, type PostQueryType, type CreatePostType, type UpdatePostType } from './dto/post.schema';
 import { ZodValidationPipe } from 'src/common/pipes/zod-pipe';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('posts')
+@UseGuards(AuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) { }
 
-  @UseGuards(AuthGuard)
+
   @Post()
   @UsePipes(new ZodValidationPipe(createPostSchema))
-  create(@Body() createPostDto: CreatePostType) {
-    return this.postsService.create(createPostDto);
+  create(@Req() req: any, @Body() createPostDto: CreatePostType) {
+    return this.postsService.create(req.user.sub, createPostDto);
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @UsePipes(new ZodValidationPipe(postQueryschema))
+  findAll(@Query() query: PostQueryType) {
+
+    return this.postsService.findAll(query);
   }
 
   @Get(':id')

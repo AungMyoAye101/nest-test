@@ -8,7 +8,6 @@ export class ZodValidationPipe implements PipeTransform {
         const { data, success, error } = this.schema.safeParse(value);
 
         if (!success) {
-            console.log(error.flatten().formErrors)
             throw new BadRequestException(error.issues.map(err => err.message)[0])
         }
         return data;

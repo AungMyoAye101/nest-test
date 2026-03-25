@@ -76,7 +76,13 @@ export class AuthService {
     }
 
     async currentUser(id: string) {
-        return this.prisma.user.findUnique({ where: { id } })
+        return this.prisma.user.findUnique({
+            where: { id },
+            omit: {
+                password: true,
+                refresh_token: true
+            }
+        })
     }
 
     async refresh(token: string) {

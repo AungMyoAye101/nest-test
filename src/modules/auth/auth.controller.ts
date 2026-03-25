@@ -24,7 +24,6 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('me')
   currentUser(@Req() req: any) {
-    console.log(req)
     return this.authService.currentUser(req.user.sub)
   }
 

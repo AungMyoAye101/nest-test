@@ -9,15 +9,16 @@ export class AuthGuard implements CanActivate {
 
         const req = context.switchToHttp().getRequest();
         const token = req.headers?.authorization?.split(" ")[1];
-        console.log(token)
+
         if (!token) {
             throw new UnauthorizedException("Invalid credentail.")
         }
 
         try {
             const payload = await this.jwt.verifyAsync(token, {
-                secret: process.env.REFRESH_TOKEN_SECRET
+                secret: process.env.ACCESS_TOKEN_SECRET
             })
+
             req['user'] = payload;
         } catch (error) {
             console.error("Failed to verify token")

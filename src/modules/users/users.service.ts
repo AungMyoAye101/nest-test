@@ -6,14 +6,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) { }
   async findAll() {
-    return await this.prisma.user.findMany();
+    return await this.prisma.user.findMany({ omit: { password: true, refresh_token: true } });
   }
 
   findOne(id: string) {
-    const user = this.prisma.user.findUnique({ where: { id } });
+    const user = this.prisma.user.findUnique({ where: { id }, omit: { password: true, refresh_token: true } });
     if (!user) {
       throw new NotFoundException("User not found.")
     }
+    return user;
   }
 
   // update(id: number, updateUserDto: UpdateUserDto) {
